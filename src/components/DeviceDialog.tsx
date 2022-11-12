@@ -1,8 +1,10 @@
-import { Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
+import { Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Snackbar, Stack, TextField } from "@mui/material";
 import { deviceTypes } from "constants/constants";
 import { DeviceDto } from "dtos";
 import { useUtils } from "hooks";
+import { useSnackbar } from "notistack";
 import { FormEvent, useEffect, useState } from "react";
+import { deviceRepository } from "repository";
 
 type DialogProps = {
   open: boolean;
@@ -18,14 +20,15 @@ type GridItemProps = {
 export const DialogModal = ({ handleClose, selectDevice, open, refresh }: DialogProps) => {
 
   const [device, setDevice] = useState<DeviceDto>(selectDevice);
+  const { enqueueSnackbar } = useSnackbar();
   const { isMobile } = useUtils();
+  const { add, update } = deviceRepository;
 
   useEffect(() => {
     setDevice(selectDevice)
   }, [selectDevice])
   
   const onChange = (e: any) => {
-    console.log(e.target.value)
     setDevice(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -34,7 +37,16 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    console.log(device)
+    addDevice()
+    .then(() =>{
+      enqueueSnackbar(
+        device.id.length > 0 ? 'Device updated' : 'Device Added', 
+        { variant: 'success' }
+      );
+      refresh();
+      handleClose();
+    })
+    .finally(() => refresh)
   }
 
   const GridItem = ({ label }: GridItemProps) => {return (
@@ -42,6 +54,12 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
       <InputLabel>{label} *</InputLabel>
     </Grid>
   )}
+
+  const addDevice = async () => {
+    if (device.id.length > 0)
+      return await update(device);
+    return await add(device);
+  }
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth='xs'>
@@ -67,7 +85,6 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
                 label={isMobile ? 'System Name' : ''}
                 size='small'
                 name='system_name'
-                
                 value={device.system_name}
                 onChange={onChange}
                 />

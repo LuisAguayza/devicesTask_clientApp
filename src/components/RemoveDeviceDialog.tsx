@@ -1,4 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material'
+import { useSnackbar } from 'notistack';
 import { deviceRepository } from 'repository';
 
 type Props = {
@@ -11,8 +12,11 @@ type Props = {
 export const RemoveDeviceDialog = ({ id, handleClose, getDevices,  open}: Props) => {
   
   const { remove } = deviceRepository;
+  const { enqueueSnackbar } = useSnackbar();
+  
   const removeDevice = () => {
     remove(id)
+    .then(() => enqueueSnackbar('Device removed', { variant: 'error' }))
     .finally(getDevices);
   }
 
@@ -22,7 +26,7 @@ export const RemoveDeviceDialog = ({ id, handleClose, getDevices,  open}: Props)
       onClose={handleClose}
     >
       <DialogTitle>
-        {'Are you sure remove this device?'}
+        {'Are you sure you want to remove this device?'}
       </DialogTitle>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

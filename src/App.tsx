@@ -25,7 +25,7 @@ const App = () => {
   const [type, setType] = useState(deviceTypes[0]);
   const [sortBy, setSortBy] = useState<number>(options[0].id);
   const [loading, setLoading] = useState(true);
-  const { all } = deviceRepository;
+  const { get: all } = deviceRepository;
   
   const handleSort = useCallback((index: number) => {
     if(index === 0)

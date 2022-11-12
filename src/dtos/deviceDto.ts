@@ -3,4 +3,4 @@ export type DeviceDto = {
   system_name: string;
   type: string;
   hdd_capacity: number;
-}
+};
