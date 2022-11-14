@@ -2,7 +2,7 @@ import { Apple, Delete, DesktopWindows, Edit } from '@mui/icons-material';
 import { Card, IconButton, ListItem, ListItemIcon, ListItemText, Stack, Tooltip } from "@mui/material";
 import { DeviceDto } from 'dtos/deviceDto';
 import { useUtils } from 'hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RemoveDeviceDialog } from './';
 
 type Props = {
