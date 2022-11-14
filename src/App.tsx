@@ -81,7 +81,6 @@ const App = () => {
 
   const handleClose = () => {
     setOpen(prev => !prev);
-    // setSelectDevice(INITIAL_DEVICE_STATE)
   };  
   
   return (

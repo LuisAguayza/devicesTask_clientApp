@@ -16,7 +16,7 @@ export const RemoveDeviceDialog = ({ id, handleClose, getDevices,  open}: Props)
   
   const removeDevice = () => {
     remove(id)
-    .then(() => enqueueSnackbar('Device removed', { variant: 'error' }))
+    .then(() => enqueueSnackbar('Device removed', { variant: 'warning' }))
     .finally(getDevices);
   }
 

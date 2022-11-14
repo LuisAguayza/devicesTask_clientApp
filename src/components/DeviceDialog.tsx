@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Snackbar, Stack, TextField } from "@mui/material";
+import { Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { deviceTypes } from "constants/constants";
 import { DeviceDto } from "dtos";
 import { useUtils } from "hooks";
@@ -80,11 +80,11 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
             <GridItem label='System Name'/>
             <Grid item xs={12} md={7}>
               <TextField
+                name='system_name'
                 fullWidth
                 required
                 label={isMobile ? 'System Name' : ''}
                 size='small'
-                name='system_name'
                 value={device.system_name}
                 onChange={onChange}
                 />
@@ -101,9 +101,9 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
               <FormControl required fullWidth>
                 { isMobile && <InputLabel>Type</InputLabel> }
                 <Select
+                  name='type'
                   label={isMobile ? 'Type' : ''}
                   size='small'
-                  name='type'
                   value={device.type}
                   onChange={onChange}
                 >
@@ -125,11 +125,14 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
             <GridItem label='HDD Capacity (GB)'/>
             <Grid item xs={12} md={7}>
               <TextField
+                name='hdd_capacity'
                 required
                 size='small'
                 type='number'
+                inputProps={{
+                  min: 1
+                }}
                 label={isMobile ? 'HDD Capacity (GB)' : ''}
-                name='hdd_capacity'
                 fullWidth
                 value={device.hdd_capacity}
                 onChange={onChange}

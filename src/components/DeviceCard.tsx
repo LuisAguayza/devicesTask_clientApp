@@ -3,7 +3,6 @@ import { Card, IconButton, ListItem, ListItemIcon, ListItemText, Stack, Tooltip 
 import { DeviceDto } from 'dtos/deviceDto';
 import { useUtils } from 'hooks';
 import { useState } from 'react';
-import { deviceRepository } from 'repository';
 import { RemoveDeviceDialog } from './';
 
 type Props = {
@@ -25,7 +24,6 @@ export const DeviceCard = ({
 
   const handleShowButton = () => setIsVisible(true)
   const handleHideButton = () => setIsVisible(false);
-  
   const showModal = () => setOpen(prev => !prev);
 
   return (
