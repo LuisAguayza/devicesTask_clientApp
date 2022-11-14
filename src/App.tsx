@@ -3,6 +3,7 @@ import { Box, Chip, CircularProgress, Container, Fab, FormControl, InputLabel, L
 import { DeviceCard, DialogModal } from "components";
 import { deviceTypes, INITIAL_DEVICE_STATE } from "constants/constants";
 import { DeviceDto } from "dtos";
+import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
 import { deviceRepository } from "repository";
 
@@ -38,6 +39,7 @@ const App = () => {
   const [type, setType] = useState<string[]>([deviceTypes[0]]);
   const [sortBy, setSortBy] = useState<string>(options[0].id);
   const [loading, setLoading] = useState(true);
+  const { enqueueSnackbar } = useSnackbar();
   const { get } = deviceRepository;
   
   const handleSort = useCallback((index: string, devices: DeviceDto[]) => {
@@ -55,10 +57,13 @@ const App = () => {
         type[0] === deviceTypes[0]
         ? result
         : result.filter(x => type.includes(x.type))
-    )}
-     )
+    )})
+    .catch(error => {
+      enqueueSnackbar(error.message, { variant: 'error' });
+      setDevices([]);
+    })
     .finally(() => setLoading(false));
-  }, [get, handleSort, sortBy, type]);
+  }, [enqueueSnackbar, get, handleSort, sortBy, type]);
   
   useEffect(getDevices, [getDevices, type]);
   
