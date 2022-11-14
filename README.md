@@ -13,7 +13,7 @@
 
 - [Material UI](https://mui.com/)
 
--  [Axios](https://axios-http.com/) 
+- [Axios](https://axios-http.com/) 
 
 - [Notistack](https://notistack.com/)
 
@@ -42,13 +42,12 @@ and then you can open http://localhost:3000 to view it in the browser.
 
 ## Usage
 
-1. To add a device you have to click in 'Add' and fill form
-![App](public/add-device.png)
-
+1. To add a device you have to click in 'Add device' and fill form
+![Add](public/add-device.png)
 2. You can filter by multiple type devices
-![App](public/filter-device.png)
+![Filter](public/filter-device.png)
 3. You can sorty by name or HDD capacity
-![App](public/sort-device.png)
+![Sort](public/sort-device.png)
 4. Put mouse over in the device card to update or delete
-![App](public/update-device.png)
+![Update](public/update-device.png)
 
