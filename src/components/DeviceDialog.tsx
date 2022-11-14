@@ -13,10 +13,6 @@ type DialogProps = {
   selectDevice: DeviceDto;
 }
 
-type GridItemProps = {
-  label: string;
-}
-
 export const DialogModal = ({ handleClose, selectDevice, open, refresh }: DialogProps) => {
 
   const [device, setDevice] = useState<DeviceDto>(selectDevice);
@@ -48,12 +44,6 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
     })
     .finally(() => refresh)
   }
-
-  const GridItem = ({ label }: GridItemProps) => {return (
-    <Grid item hidden={isMobile} md={5}>
-      <InputLabel>{label} *</InputLabel>
-    </Grid>
-  )}
 
   const addDevice = async () => {
     if (device.id.length > 0)
@@ -156,3 +146,17 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
     </Dialog>
   )
 }
+
+type GridItemProps = {
+  label: string;
+}
+
+export const GridItem = ({ label }: GridItemProps) => {
+
+  const { isMobile } = useUtils();
+
+  return (
+    <Grid item hidden={isMobile} md={5}>
+      <InputLabel>{label} *</InputLabel>
+    </Grid>
+)}

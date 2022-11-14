@@ -1,5 +1,5 @@
 import { Add } from "@mui/icons-material";
-import { CircularProgress, Container, Fab, FormControl, InputLabel, List, MenuItem, Select, SelectChangeEvent, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Container, Fab, FormControl, InputLabel, List, MenuItem, Select, SelectChangeEvent, Stack, Tooltip, Typography } from "@mui/material";
 import { DeviceCard, DialogModal } from "components";
 import { deviceTypes, INITIAL_DEVICE_STATE } from "constants/constants";
 import { DeviceDto } from "dtos";
@@ -8,70 +8,69 @@ import { deviceRepository } from "repository";
 
 const options = [
   {
-    id: 0,
+    id: 'name',
     label: 'System name',
   },
   {
-    id: 1,
+    id: 'capacity',
     label: 'HDD Capacity',
   }
-]
+];
+
+const sortByCapacity = (devices: DeviceDto[]) => {
+  return devices.sort((a, b) => a.hdd_capacity - b.hdd_capacity);
+};
+
+const sortByName = (devices: DeviceDto[]) => {
+  return devices.sort((a, b) => 
+    a.system_name.toLowerCase() < b.system_name.toLowerCase() 
+    ? -1 
+    : a.system_name.toLowerCase() > b.system_name.toLowerCase() 
+      ? 1 : 0
+  );
+}
 
 const App = () => {
 
   const [devices, setDevices] = useState<DeviceDto[]>([]);
   const [selectDevice, setSelectDevice] = useState<DeviceDto>(INITIAL_DEVICE_STATE);
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState(deviceTypes[0]);
-  const [sortBy, setSortBy] = useState<number>(options[0].id);
+  const [type, setType] = useState<string[]>([deviceTypes[0]]);
+  const [sortBy, setSortBy] = useState<string>(options[0].id);
   const [loading, setLoading] = useState(true);
-  const { get: all } = deviceRepository;
+  const { get } = deviceRepository;
   
-  const handleSort = useCallback((index: number) => {
-    if(index === 0)
-      return sortByName()
-    return sortByCapacity()
+  const handleSort = useCallback((index: string, devices: DeviceDto[]) => {
+    if(index === 'name')
+      return sortByName(devices)
+    return sortByCapacity(devices)
   },[]);
 
   const getDevices = useCallback(() => {
     setLoading(true);
-    all()
-    .then(({ data }) => 
+    get()
+    .then(({ data }) => {
+      let result = handleSort(sortBy, data);
       setDevices(
-        type === deviceTypes[0]
-        ? data
-        : data.filter(x => x.type === type)
-    ))
-    .finally(() => {
-      setLoading(false);
-      handleSort(sortBy);
-    });
-  }, [all, handleSort, sortBy, type]);
+        type[0] === deviceTypes[0]
+        ? result
+        : result.filter(x => type.includes(x.type))
+    )}
+     )
+    .finally(() => setLoading(false));
+  }, [get, handleSort, sortBy, type]);
   
   useEffect(getDevices, [getDevices, type]);
   
-  const filterByType = ({ target }: SelectChangeEvent<string>) => {
-    setType(target.value);
+  const filterByType = ({ target: { value } }: SelectChangeEvent<typeof type>) => {
+    if(value.length === 0 || (value.includes(deviceTypes[0]) && value.indexOf(deviceTypes[0]) !== 0))
+      return setType([deviceTypes[0]]);
+    
+    return setType(typeof value === 'string' ? [deviceTypes[0]] : value.filter(x => x !== deviceTypes[0]));
   }
 
   const sort = ({ target }: SelectChangeEvent<string>) => {
-    setSortBy(+target.value);
-    handleSort(+target.value);
-  }
-
-  const sortByCapacity = () => {
-    setDevices(prev => 
-      prev.sort((a, b) => a.hdd_capacity - b.hdd_capacity)
-    )
-  };
-
-  const sortByName = () => {
-    setDevices(prev => prev.sort((a, b) => 
-      a.system_name.toLowerCase() < b.system_name.toLowerCase() 
-      ? -1 
-      : a.system_name.toLowerCase() > b.system_name.toLowerCase() 
-        ? 1 : 0
-    ));
+    setSortBy(target.value);
   }
 
   const handleOpenModal = (device?: DeviceDto) => {
@@ -96,16 +95,24 @@ const App = () => {
         <Typography variant='h4'>Devices App</Typography>
         <Stack
           justifyContent='space-between'
-          direction={{ xs: 'column', md: 'row' }}
           spacing={3}
         >
           <FormControl fullWidth>
             <InputLabel>Device Type</InputLabel>
             <Select
+              multiple
               value={type}
               label='Device Type'
               onChange={filterByType}
               size='small'
+              sx={{ minHeight: 53}}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
             >
               {
                 deviceTypes.map(device => 
@@ -124,7 +131,6 @@ const App = () => {
               value={`${sortBy}`}
               label='Sorty by'
               onChange={sort}
-              size='small'
             >
               {
                 options.map(({id, label}) => 
@@ -144,8 +150,8 @@ const App = () => {
           </Fab>
         </Tooltip>
         {
-          loading 
-          ? <CircularProgress />
+          loading
+          ? <CircularProgress sx={{ alignSelf: 'center' }}/>
           : devices.length > 0
             ? <List>
               {

@@ -22,15 +22,15 @@ export const DeviceCard = ({
   const [isVisible, setIsVisible] = useState(isMobile);
   const [open, setOpen] = useState(false);
 
-  const handleShowButton = () => setIsVisible(true)
-  const handleHideButton = () => setIsVisible(false);
+  const handleShowButton = () => setIsVisible(prev => !prev);
+
   const showModal = () => setOpen(prev => !prev);
 
   return (
     <Card
       sx={{ mt: 1 }}
-      onMouseOver={handleShowButton}
-      onMouseLeave={handleHideButton}
+      onMouseEnter={handleShowButton}
+      onMouseLeave={handleShowButton}
     >
       <ListItem>
         <ListItemIcon>
