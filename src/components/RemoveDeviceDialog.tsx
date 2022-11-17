@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { deviceRepository } from 'repository';
 

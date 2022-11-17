@@ -31,9 +31,17 @@ const sortByName = (devices: DeviceDto[]) => {
   );
 }
 
+const handleSort = (index: string, devices: DeviceDto[]) => {
+  console.log(index)
+  if(index === 'name')
+    return sortByName(devices)
+  return sortByCapacity(devices)
+};
+
 const App = () => {
 
   const [devices, setDevices] = useState<DeviceDto[]>([]);
+  const [devicesRecovery, setDevicesRecovery] = useState<DeviceDto[]>([]);
   const [selectDevice, setSelectDevice] = useState<DeviceDto>(INITIAL_DEVICE_STATE);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<string[]>([deviceTypes[0]]);
@@ -41,32 +49,26 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const { get } = deviceRepository;
-  
-  const handleSort = useCallback((index: string, devices: DeviceDto[]) => {
-    if(index === 'name')
-      return sortByName(devices)
-    return sortByCapacity(devices)
-  },[]);
 
   const getDevices = useCallback(() => {
-    setLoading(true);
     get()
-    .then(({ data }) => {
-      let result = handleSort(sortBy, data);
-      setDevices(
-        type[0] === deviceTypes[0]
-        ? result
-        : result.filter(x => type.includes(x.type))
-    )})
+    .then(({ data }) => setDevicesRecovery(data))
     .catch(error => {
       enqueueSnackbar(error.message, { variant: 'error' });
       setDevices([]);
     })
     .finally(() => setLoading(false));
-  }, [enqueueSnackbar, get, handleSort, sortBy, type]);
+  }, [enqueueSnackbar, get])
+
+  useEffect(getDevices, []);
   
-  useEffect(getDevices, [getDevices, type]);
+  useEffect(() => {
+    const devicesFiltered = type.includes(deviceTypes[0]) ? devicesRecovery : devicesRecovery.filter(x => type.includes(x.type));
+    const devicesSorted = handleSort(sortBy, devicesFiltered); 
+    setDevices(devicesSorted);
+  }, [type, devicesRecovery, sortBy])
   
+
   const filterByType = ({ target: { value } }: SelectChangeEvent<typeof type>) => {
     if(value.length === 0 || (value.includes(deviceTypes[0]) && value.indexOf(deviceTypes[0]) !== 0))
       return setType([deviceTypes[0]]);
@@ -83,9 +85,7 @@ const App = () => {
     setSelectDevice(device ? device : INITIAL_DEVICE_STATE);
   };
 
-  const handleClose = () => {
-    setOpen(prev => !prev);
-  };  
+  const handleClose = () => setOpen(prev => !prev);  
   
   return (
     <Container 
@@ -172,7 +172,12 @@ const App = () => {
               </List>
             : <Typography width='100%' textAlign='center'>No result</Typography>
         }
-        <DialogModal handleClose={handleClose} open={open} refresh={getDevices} selectDevice={selectDevice}/>
+        <DialogModal
+          refresh={getDevices}
+          handleClose={handleClose}
+          open={open}
+          selectDevice={selectDevice}
+        />
       </Stack>
     </Container>
   );

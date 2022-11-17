@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
-import { deviceTypes } from "constants/constants";
+import { deviceTypes, INITIAL_DEVICE_STATE } from "constants/constants";
 import { DeviceDto } from "dtos";
 import { useUtils } from "hooks";
 import { useSnackbar } from "notistack";
@@ -40,9 +40,14 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
         { variant: 'success' }
       );
       refresh();
-      handleClose();
+      closeDialog();
     })
     .finally(() => refresh)
+  }
+
+  const closeDialog = () => {
+    handleClose();
+    setDevice(INITIAL_DEVICE_STATE);
   }
 
   const addDevice = async () => {
@@ -52,7 +57,7 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth='xs'>
+    <Dialog open={open} onClose={closeDialog} fullWidth maxWidth='xs'>
       <DialogTitle>{device.id.length > 0 ? 'Update device' : 'Add device'}</DialogTitle>
       <DialogContent>
         <Stack 
@@ -77,6 +82,10 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
                 size='small'
                 value={device.system_name}
                 onChange={onChange}
+                inputProps={{
+                  pattern: `[^' ']+`,
+                  title: `Don't use spaces`
+                }}
                 />
             </Grid>
           </Grid>
