@@ -4,7 +4,7 @@ import { DeviceCard, DialogModal } from "components";
 import { deviceTypes, INITIAL_DEVICE_STATE } from "constants/constants";
 import { DeviceDto } from "dtos";
 import { useSnackbar } from "notistack";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { deviceRepository } from "repository";
 
 const options = [
@@ -32,7 +32,6 @@ const sortByName = (devices: DeviceDto[]) => {
 }
 
 const handleSort = (index: string, devices: DeviceDto[]) => {
-  console.log(index)
   if(index === 'name')
     return sortByName(devices)
   return sortByCapacity(devices)
@@ -41,7 +40,6 @@ const handleSort = (index: string, devices: DeviceDto[]) => {
 const App = () => {
 
   const [devices, setDevices] = useState<DeviceDto[]>([]);
-  const [devicesRecovery, setDevicesRecovery] = useState<DeviceDto[]>([]);
   const [selectDevice, setSelectDevice] = useState<DeviceDto>(INITIAL_DEVICE_STATE);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<string[]>([deviceTypes[0]]);
@@ -52,7 +50,7 @@ const App = () => {
 
   const getDevices = useCallback(() => {
     get()
-    .then(({ data }) => setDevicesRecovery(data))
+    .then(({ data }) => setDevices(data))
     .catch(error => {
       enqueueSnackbar(error.message, { variant: 'error' });
       setDevices([]);
@@ -60,15 +58,17 @@ const App = () => {
     .finally(() => setLoading(false));
   }, [enqueueSnackbar, get])
 
-  useEffect(getDevices, []);
+  const deviceToShow = useMemo(() => 
+    handleSort(
+      sortBy, 
+      type.includes(deviceTypes[0]) 
+        ? devices 
+        : devices.filter(x => type.includes(x.type)
+      ))
+  , [devices, sortBy, type]);
   
-  useEffect(() => {
-    const devicesFiltered = type.includes(deviceTypes[0]) ? devicesRecovery : devicesRecovery.filter(x => type.includes(x.type));
-    const devicesSorted = handleSort(sortBy, devicesFiltered); 
-    setDevices(devicesSorted);
-  }, [type, devicesRecovery, sortBy])
+  useEffect(getDevices, [getDevices]);
   
-
   const filterByType = ({ target: { value } }: SelectChangeEvent<typeof type>) => {
     if(value.length === 0 || (value.includes(deviceTypes[0]) && value.indexOf(deviceTypes[0]) !== 0))
       return setType([deviceTypes[0]]);
@@ -84,9 +84,12 @@ const App = () => {
     setOpen(prev => !prev);
     setSelectDevice(device ? device : INITIAL_DEVICE_STATE);
   };
-
-  const handleClose = () => setOpen(prev => !prev);  
   
+  const handleClose = () => {
+    setOpen(prev => !prev)
+    setSelectDevice(INITIAL_DEVICE_STATE);
+  };  
+
   return (
     <Container 
       maxWidth='sm' 
@@ -157,10 +160,10 @@ const App = () => {
         {
           loading
           ? <CircularProgress sx={{ alignSelf: 'center' }}/>
-          : devices.length > 0
+          : deviceToShow.length > 0
             ? <List>
               {
-                devices.map(device =>
+                deviceToShow.map(device =>
                   <DeviceCard 
                     key={device.id}
                     device={device}
