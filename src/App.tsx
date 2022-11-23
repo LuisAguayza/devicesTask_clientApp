@@ -15,6 +15,10 @@ const options = [
   {
     id: 'capacity',
     label: 'HDD Capacity',
+  },
+  {
+    id: 'type',
+    label: 'Type',
   }
 ];
 
@@ -23,19 +27,35 @@ const sortByCapacity = (devices: DeviceDto[]) => {
 };
 
 const sortByName = (devices: DeviceDto[]) => {
-  return devices.sort((a, b) => 
-    a.system_name.toLowerCase() < b.system_name.toLowerCase() 
-    ? -1 
-    : a.system_name.toLowerCase() > b.system_name.toLowerCase() 
-      ? 1 : 0
+  return devices.sort((a, b) =>
+    a.system_name.toLowerCase() < b.system_name.toLowerCase()
+      ? -1
+      : a.system_name.toLowerCase() > b.system_name.toLowerCase()
+        ? 1 : 0
   );
 }
 
 const handleSort = (index: string, devices: DeviceDto[]) => {
-  if(index === 'name')
-    return sortByName(devices)
-  return sortByCapacity(devices)
+  switch (index) {
+    case 'name':
+      return sortByName(devices)
+    case 'capacity':
+      return sortByCapacity(devices);
+    case 'type':
+      return sortyByType(devices);
+    default: return sortByName(devices);
+  }
 };
+
+const sortyByType = (devices: DeviceDto[]) => {
+  return devices.sort((a, b) =>
+    a.type.toLowerCase() < b.type.toLowerCase()
+      ? -1
+      : a.type.toLowerCase() > b.type.toLowerCase()
+        ? 1 : 0
+  );
+}
+
 
 const App = () => {
 
@@ -50,29 +70,29 @@ const App = () => {
 
   const getDevices = useCallback(() => {
     get()
-    .then(({ data }) => setDevices(data))
-    .catch(error => {
-      enqueueSnackbar(error.message, { variant: 'error' });
-      setDevices([]);
-    })
-    .finally(() => setLoading(false));
+      .then(({ data }) => setDevices(data))
+      .catch(error => {
+        enqueueSnackbar(error.message, { variant: 'error' });
+        setDevices([]);
+      })
+      .finally(() => setLoading(false));
   }, [enqueueSnackbar, get])
 
-  const deviceToShow = useMemo(() => 
+  const deviceToShow = useMemo(() =>
     handleSort(
-      sortBy, 
-      type.includes(deviceTypes[0]) 
-        ? devices 
+      sortBy,
+      type.includes(deviceTypes[0])
+        ? devices
         : devices.filter(x => type.includes(x.type)
-      ))
-  , [devices, sortBy, type]);
-  
+        ))
+    , [devices, sortBy, type]);
+
   useEffect(getDevices, [getDevices]);
-  
+
   const filterByType = ({ target: { value } }: SelectChangeEvent<typeof type>) => {
-    if(value.length === 0 || (value.includes(deviceTypes[0]) && value.indexOf(deviceTypes[0]) !== 0))
+    if (value.length === 0 || (value.includes(deviceTypes[0]) && value.indexOf(deviceTypes[0]) !== 0))
       return setType([deviceTypes[0]]);
-    
+
     return setType(typeof value === 'string' ? [deviceTypes[0]] : value.filter(x => x !== deviceTypes[0]));
   }
 
@@ -84,15 +104,15 @@ const App = () => {
     setOpen(prev => !prev);
     setSelectDevice(device ? device : INITIAL_DEVICE_STATE);
   };
-  
+
   const handleClose = () => {
     setOpen(prev => !prev)
     setSelectDevice(INITIAL_DEVICE_STATE);
-  };  
+  };
 
   return (
-    <Container 
-      maxWidth='sm' 
+    <Container
+      maxWidth='sm'
       sx={{
         py: 10,
         display: 'flex',
@@ -113,7 +133,7 @@ const App = () => {
               label='Device Type'
               onChange={filterByType}
               size='small'
-              sx={{ minHeight: 53}}
+              sx={{ minHeight: 53 }}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((value) => (
@@ -123,8 +143,8 @@ const App = () => {
               )}
             >
               {
-                deviceTypes.map(device => 
-                  <MenuItem 
+                deviceTypes.map(device =>
+                  <MenuItem
                     key={device}
                     value={device}
                   >{device}
@@ -141,8 +161,8 @@ const App = () => {
               onChange={sort}
             >
               {
-                options.map(({id, label}) => 
-                  <MenuItem 
+                options.map(({ id, label }) =>
+                  <MenuItem
                     key={id}
                     value={id}
                   >{label}
@@ -159,21 +179,21 @@ const App = () => {
         </Tooltip>
         {
           loading
-          ? <CircularProgress sx={{ alignSelf: 'center' }}/>
-          : deviceToShow.length > 0
-            ? <List>
-              {
-                deviceToShow.map(device =>
-                  <DeviceCard 
-                    key={device.id}
-                    device={device}
-                    getDevices={getDevices}
-                    handleOpenModal={handleOpenModal}
-                  />
-                )
-              }  
+            ? <CircularProgress sx={{ alignSelf: 'center' }} />
+            : deviceToShow.length > 0
+              ? <List>
+                {
+                  deviceToShow.map(device =>
+                    <DeviceCard
+                      key={device.id}
+                      device={device}
+                      getDevices={getDevices}
+                      handleOpenModal={handleOpenModal}
+                    />
+                  )
+                }
               </List>
-            : <Typography width='100%' textAlign='center'>No result</Typography>
+              : <Typography width='100%' textAlign='center'>No result</Typography>
         }
         <DialogModal
           refresh={getDevices}
