@@ -14,7 +14,7 @@ type Props = {
 export const DeviceCard = ({
   getDevices,
   handleOpenModal,
-  device 
+  device
 }: Props) => {
 
   const { id, hdd_capacity, system_name, type } = device
@@ -23,6 +23,7 @@ export const DeviceCard = ({
   const [open, setOpen] = useState(false);
 
   const handleShowButton = () => setIsVisible(prev => !prev);
+  // const handleHideButton = () => setIsVisible(false);
 
   const showModal = () => setOpen(prev => !prev);
 
@@ -34,9 +35,9 @@ export const DeviceCard = ({
     >
       <ListItem>
         <ListItemIcon>
-        {
-          type.includes('MAC') ? <Apple /> : <DesktopWindows/> 
-        }
+          {
+            type.includes('MAC') ? <Apple /> : <DesktopWindows />
+          }
         </ListItemIcon>
         <ListItemText
           primary={system_name}
@@ -53,7 +54,7 @@ export const DeviceCard = ({
             <Tooltip title='Remove' placement='top'>
               <IconButton onClick={showModal}>
                 <Delete />
-              </IconButton>  
+              </IconButton>
             </Tooltip>
             <Tooltip title='Edit' placement='top'>
               <IconButton onClick={() => handleOpenModal(device)}>

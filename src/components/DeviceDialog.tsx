@@ -23,26 +23,26 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
   useEffect(() => {
     setDevice(selectDevice)
   }, [selectDevice])
-  
+
   const onChange = (e: any) => {
     setDevice(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.name === 'hdd_capacity' ? +e.target.value : e.target.value
     }))
   }
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     addDevice()
-    .then(() =>{
-      enqueueSnackbar(
-        device.id.length > 0 ? 'Device updated' : 'Device Added', 
-        { variant: 'success' }
-      );
-      refresh();
-      closeDialog();
-    })
-    .finally(() => refresh)
+      .then(() => {
+        enqueueSnackbar(
+          device.id.length > 0 ? 'Device updated' : 'Device Added',
+          { variant: 'success' }
+        );
+        refresh();
+        closeDialog();
+      })
+      .finally(() => refresh)
   }
 
   const closeDialog = () => {
@@ -60,19 +60,19 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
     <Dialog open={open} onClose={closeDialog} fullWidth maxWidth='xs'>
       <DialogTitle>{device.id.length > 0 ? 'Update device' : 'Add device'}</DialogTitle>
       <DialogContent>
-        <Stack 
+        <Stack
           mt={1}
           component='form'
           onSubmit={handleSubmit}
           spacing={4}
         >
-          <Grid 
+          <Grid
             container
             direction='row'
             alignItems='center'
             justifyContent='center'
           >
-            <GridItem label='System Name'/>
+            <GridItem label='System Name' />
             <Grid item xs={12} md={7}>
               <TextField
                 name='system_name'
@@ -86,7 +86,7 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
                   pattern: `[^' ']+`,
                   title: `Don't use spaces`
                 }}
-                />
+              />
             </Grid>
           </Grid>
           <Grid
@@ -95,10 +95,10 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
             alignItems='center'
             justifyContent='center'
           >
-            <GridItem label='Type'/>
+            <GridItem label='Type' />
             <Grid item xs={12} md={7}>
               <FormControl required fullWidth>
-                { isMobile && <InputLabel>Type</InputLabel> }
+                {isMobile && <InputLabel>Type</InputLabel>}
                 <Select
                   name='type'
                   label={isMobile ? 'Type' : ''}
@@ -121,7 +121,7 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
             alignItems='center'
             justifyContent='center'
           >
-            <GridItem label='HDD Capacity (GB)'/>
+            <GridItem label='HDD Capacity (GB)' />
             <Grid item xs={12} md={7}>
               <TextField
                 name='hdd_capacity'
@@ -146,7 +146,7 @@ export const DialogModal = ({ handleClose, selectDevice, open, refresh }: Dialog
             >{device.id.length > 0 ? 'Update' : 'Save'}
             </Button>
             <Button
-              onClick={handleClose}
+              onClick={closeDialog}
               color='error'
             >Cancel</Button>
           </Stack>
@@ -168,4 +168,5 @@ export const GridItem = ({ label }: GridItemProps) => {
     <Grid item hidden={isMobile} md={5}>
       <InputLabel>{label} *</InputLabel>
     </Grid>
-)}
+  )
+}
